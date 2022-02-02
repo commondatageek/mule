@@ -15,3 +15,5 @@ RUN apt-get install -y netcat
 RUN apt-get install -y man
 RUN apt-get install -y less
 RUN apt-get install -y vim
+RUN apt-get install -y build-essential
+RUN apt-get install -y tree
