@@ -20,3 +20,4 @@ RUN apt-get install -y tree
 RUN apt-get install -y bat
 RUN echo 'alias bat=batcat' >> ~/.bashrc
 RUN apt-get install -y silversearcher-ag
+RUN apt-get install -y net-tools
