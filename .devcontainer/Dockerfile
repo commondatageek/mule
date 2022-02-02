@@ -17,3 +17,6 @@ RUN apt-get install -y less
 RUN apt-get install -y vim
 RUN apt-get install -y build-essential
 RUN apt-get install -y tree
+RUN apt-get install -y bat
+RUN echo 'alias bat=batcat' >> ~/.bashrc
+RUN apt-get install -y silversearcher-ag
