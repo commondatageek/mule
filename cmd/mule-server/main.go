@@ -24,6 +24,7 @@ func ListenProducer(listenAddr string, out chan<- net.Conn) {
 	}
 
 	out <- conn
+	close(out)
 }
 
 func ListenConsumer(listenAddr string, out chan<- net.Conn) {
@@ -39,6 +40,7 @@ func ListenConsumer(listenAddr string, out chan<- net.Conn) {
 	}
 
 	out <- conn
+	close(out)
 }
 
 func Transfer(pChan, cChan <-chan net.Conn) (int64, error) {
