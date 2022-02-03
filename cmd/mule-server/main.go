@@ -7,8 +7,8 @@ import (
 )
 
 const Protocol = "tcp"
-const ProducerAddress = "localhost:8881"
-const ConsumerAddress = "localhost:8882"
+const ProducerAddress = "0.0.0.0:8881"
+const ConsumerAddress = "0.0.0.0:8882"
 
 func ListenProducer(listenAddr string, out chan<- net.Conn) {
 	lsn, err := net.Listen(Protocol, listenAddr)
