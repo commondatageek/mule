@@ -4,6 +4,6 @@ build:
 test:
 	bin/mule-server &
 	sleep 2
-	bin/mule-send go.mod &
+	bin/mule-send -host localhost -port 8881 -infile go.mod &
 	sleep 2
-	bin/mule-recv received_file &
+	bin/mule-recv -host localhost -port 8882 -outfile received_file &
