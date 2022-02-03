@@ -21,3 +21,4 @@ RUN apt-get install -y bat
 RUN echo 'alias bat=batcat' >> ~/.bashrc
 RUN apt-get install -y silversearcher-ag
 RUN apt-get install -y net-tools
+RUN apt-get install -y file
