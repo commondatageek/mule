@@ -10,27 +10,27 @@
 
 ## Next Steps
 
+- **Security** - for both producer and consumer, print out a SHA256 hash after it
+  has been transferred
+- **Security** - Add symmetric encryption
+    - `mule send this_file secret12345`
+    - `mule recv this_file secret12345`
+- **Usability** - Read data from STDIN
+- **Usability** - Write data to STDOUT
+- **Usability** - server keep listening for more instead of quitting after first transfer
 - **Refactor** - merge `mule-send` and `mule-recv` into one client, `mule`
 - **Usability** - On producer end of things, have it produce a command
   line invocation for the consumer that can be copied and pasted and
   sent to the receiver that already has all of the necessary parameters.
-- **Usability** - Read data from STDIN
-- **Usability** - Write data to STDOUT
 - **Usability** - Show some kind of progress bar for files that take
   more than five seconds to transfer
 - **Configuration** - On the client side, take server params (host, port) from:
     - a local dotfile
     - environment variables
-- **Security** - for both producer and consumer, print out a SHA256 hash after it
-  has been transferred
 - **Configuration** - Make server ports configurable
-- **Security** - Add encryption
-    - symmetric encryption?
-        - `mule send this_file secret12345`
-        - `mule recv this_file secret12345`
-    - public/private key encryption?
-        - `mule send this_file johnny.pub`
-        - `mule recv this_file johnny`
+- **Security** - Add public key encryption
+    - `mule send this_file johnny.pub`
+    - `mule recv this_file johnny`
 - **Project** - consider changing name to `skymule`? Just in case there are already
   a lot of "mule" projects out there
 - **Security** - add some kind of authentication on the server with Okta
