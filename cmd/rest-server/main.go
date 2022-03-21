@@ -1,25 +1,46 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
+
+	"github.com/commondatageek/mule/cmd/rest-server/pipemap"
 )
 
-const Path = "test_data"
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	src, err := os.Open(Path)
-	if err != nil {
-		log.Fatalf("Could not open file %s: %s\n", Path, err)
-	}
-	defer src.Close()
-
-	io.Copy(w, src)
-}
+const Port = "8080"
 
 func main() {
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/", NewHandler())
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", Port), nil))
+}
+
+func NewHandler() func(http.ResponseWriter, *http.Request) {
+	pm := pipemap.New()
+	return func(w http.ResponseWriter, r *http.Request) {
+		method := r.Method
+		key := r.URL.Path
+		log.Printf("%s: %s", method, key)
+
+		switch method {
+
+		case http.MethodPut:
+			rdr, wtr := io.Pipe()
+			defer wtr.Close()
+			pm.Set(key, rdr)
+
+			io.Copy(wtr, r.Body)
+
+		case http.MethodGet:
+			if rdr, ok := pm.Get(key); ok {
+				defer rdr.Close()
+				io.Copy(w, rdr)
+				pm.Delete(key)
+			} else {
+				http.NotFound(w, r)
+			}
+		}
+	}
+
 }
