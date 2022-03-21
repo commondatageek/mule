@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -14,8 +16,11 @@ func main() {
 
 	client := http.Client{}
 
+	hash := sha256.New()
+	input := io.TeeReader(os.Stdin, hash)
+
 	// construct the PUT request
-	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("http://localhost:%s/%s", Port, key), os.Stdin)
+	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("http://localhost:%s/%s", Port, key), input)
 	if err != nil {
 		log.Fatalf("Could not create request: %s\n", err)
 	}
@@ -29,5 +34,7 @@ func main() {
 	}
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("%s\n", resp.Status)
+	} else {
+		log.Printf("SHA256: %x\n", hash.Sum(nil))
 	}
 }

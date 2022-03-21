@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"log"
@@ -19,8 +20,12 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	_, err = io.Copy(os.Stdout, resp.Body)
+	hash := sha256.New()
+	output := io.TeeReader(resp.Body, hash)
+	_, err = io.Copy(os.Stdout, output)
 	if err != nil {
 		log.Fatalf("Could not copy data: %s\n", err)
+	} else {
+		log.Printf("SHA256: %x\n", hash.Sum(nil))
 	}
 }
