@@ -28,9 +28,13 @@ func NewHandler() func(http.ResponseWriter, *http.Request) {
 		case http.MethodPut:
 			rdr, wtr := io.Pipe()
 			defer wtr.Close()
-			pm.Set(key, rdr)
 
-			io.Copy(wtr, r.Body)
+			if err := pm.Create(key, rdr); err != nil {
+				defer rdr.Close()
+				http.Error(w, err.Error(), http.StatusConflict)
+			} else {
+				io.Copy(wtr, r.Body)
+			}
 
 		case http.MethodGet:
 			if rdr, ok := pm.Get(key); ok {
@@ -42,5 +46,4 @@ func NewHandler() func(http.ResponseWriter, *http.Request) {
 			}
 		}
 	}
-
 }

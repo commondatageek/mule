@@ -1,6 +1,7 @@
 package pipemap
 
 import (
+	"fmt"
 	"io"
 	"sync"
 )
@@ -25,10 +26,16 @@ func (pm *PipeMap) Get(key string) (*io.PipeReader, bool) {
 	return rdr, ok
 }
 
-func (pm *PipeMap) Create(key string, rdr *io.PipeReader) {
+func (pm *PipeMap) Create(key string, rdr *io.PipeReader) error {
 	pm.lock.Lock()
-	pm.store[key] = rdr
-	pm.lock.Unlock()
+	if _, exists := pm.store[key]; exists {
+		pm.lock.Unlock()
+		return fmt.Errorf("key '%s' already exists", key)
+	} else {
+		pm.store[key] = rdr
+		pm.lock.Unlock()
+		return nil
+	}
 }
 
 func (pm *PipeMap) Delete(key string) {
