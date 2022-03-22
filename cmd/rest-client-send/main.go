@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -9,10 +10,21 @@ import (
 	"os"
 )
 
+const KeySize = 3
 const Port = "8080"
 
 func main() {
 	logger := log.New(os.Stderr, "", 0)
+	keyBytes := make([]byte, KeySize)
+
+	n, err := rand.Read(keyBytes)
+	if err != nil {
+		logger.Fatalf("Could not get a random key: %s\n", err)
+	}
+	if n != KeySize {
+		logger.Fatalf("Expected %d random bytes, received %d\n", KeySize, n)
+	}
+	key := fmt.Sprintf("%x", keyBytes)
 
 	client := http.Client{}
 
