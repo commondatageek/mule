@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/commondatageek/mule/cmd/rest-server/pipemap"
 )
@@ -20,7 +21,7 @@ func NewHandler() func(http.ResponseWriter, *http.Request) {
 	pm := pipemap.New()
 	return func(w http.ResponseWriter, r *http.Request) {
 		method := r.Method
-		key := r.URL.Path
+		key := strings.ToLower(r.URL.Path)
 		log.Printf("%s: %s", method, key)
 
 		switch method {
