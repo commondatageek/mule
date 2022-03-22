@@ -12,11 +12,12 @@ import (
 const Port = "8080"
 
 func main() {
+	logger := log.New(os.Stderr, "", 0)
 	key := os.Args[1]
 
 	resp, err := http.Get(fmt.Sprintf("http://localhost:%s/%s", Port, key))
 	if err != nil {
-		log.Fatalf("Could not get the file: %s\n", err)
+		logger.Fatalf("Could not get the file: %s\n", err)
 	}
 	defer resp.Body.Close()
 
@@ -24,8 +25,8 @@ func main() {
 	output := io.TeeReader(resp.Body, hash)
 	_, err = io.Copy(os.Stdout, output)
 	if err != nil {
-		log.Fatalf("Could not copy data: %s\n", err)
+		logger.Fatalf("Could not copy data: %s\n", err)
 	} else {
-		log.Printf("SHA256: %x\n", hash.Sum(nil))
+		logger.Printf("SHA256: %x\n", hash.Sum(nil))
 	}
 }
