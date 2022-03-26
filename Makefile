@@ -11,10 +11,3 @@ build-darwin-amd64:
 
 build-darwin-arm64:
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/darwin/arm64/ ./cmd/...
-
-test:
-	bin/mule-server &
-	sleep 2
-	bin/mule-send -host localhost -port 8881 -infile go.mod &
-	sleep 2
-	bin/mule-recv -host localhost -port 8882 -outfile received_file &

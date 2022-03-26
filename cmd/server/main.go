@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/commondatageek/mule/cmd/rest-server/pipemap"
+	"github.com/commondatageek/mule/cmd/server/pipemap"
 )
 
 const Port = "8080"
