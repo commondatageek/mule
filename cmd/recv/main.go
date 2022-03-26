@@ -9,13 +9,17 @@ import (
 	"os"
 )
 
-const Port = "8080"
+const DefaultHost = "localhost"
+const DefaultPort = "8080"
 
 func main() {
 	logger := log.New(os.Stderr, "", 0)
-	key := os.Args[1]
 
-	resp, err := http.Get(fmt.Sprintf("http://localhost:%s/%s", Port, key))
+	host := getHost()
+	port := getPort()
+	key := getKey()
+
+	resp, err := http.Get(fmt.Sprintf("http://%s:%s/%s", host, port, key))
 	if err != nil {
 		logger.Fatalf("Could not get the file: %s\n", err)
 	}
@@ -29,4 +33,24 @@ func main() {
 	} else {
 		logger.Printf("SHA256: %x\n", hash.Sum(nil))
 	}
+}
+
+func getHost() string {
+	if envHost, exists := os.LookupEnv("MULE_HOST"); exists {
+		return envHost
+	} else {
+		return DefaultHost
+	}
+}
+
+func getPort() string {
+	if envPort, exists := os.LookupEnv("MULE_PORT"); exists {
+		return envPort
+	} else {
+		return DefaultPort
+	}
+}
+
+func getKey() string {
+	return os.Args[1]
 }

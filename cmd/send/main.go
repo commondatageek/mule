@@ -11,20 +11,15 @@ import (
 )
 
 const KeySize = 3
-const Port = "8080"
+const DefaultHost = "localhost"
+const DefaultPort = "8080"
 
 func main() {
 	logger := log.New(os.Stderr, "", 0)
-	keyBytes := make([]byte, KeySize)
 
-	n, err := rand.Read(keyBytes)
-	if err != nil {
-		logger.Fatalf("Could not get a random key: %s\n", err)
-	}
-	if n != KeySize {
-		logger.Fatalf("Expected %d random bytes, received %d\n", KeySize, n)
-	}
-	key := fmt.Sprintf("%x", keyBytes)
+	host := getHost()
+	port := getPort()
+	key := getKey(logger)
 
 	client := http.Client{}
 
@@ -32,7 +27,7 @@ func main() {
 	input := io.TeeReader(os.Stdin, hash)
 
 	// construct the PUT request
-	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("http://localhost:%s/%s", Port, key), input)
+	req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("http://%s:%s/%s", host, port, key), input)
 	if err != nil {
 		logger.Fatalf("Could not create request: %s\n", err)
 	}
@@ -51,4 +46,32 @@ func main() {
 	} else {
 		logger.Printf("SHA256: %x\n", hash.Sum(nil))
 	}
+}
+
+func getHost() string {
+	if envHost, exists := os.LookupEnv("MULE_HOST"); exists {
+		return envHost
+	} else {
+		return DefaultHost
+	}
+}
+
+func getPort() string {
+	if envPort, exists := os.LookupEnv("MULE_PORT"); exists {
+		return envPort
+	} else {
+		return DefaultPort
+	}
+}
+
+func getKey(logger *log.Logger) string {
+	keyBytes := make([]byte, KeySize)
+	n, err := rand.Read(keyBytes)
+	if err != nil {
+		logger.Fatalf("Could not get a random key: %s\n", err)
+	}
+	if n != KeySize {
+		logger.Fatalf("Expected %d random bytes, received %d\n", KeySize, n)
+	}
+	return fmt.Sprintf("%x", keyBytes)
 }

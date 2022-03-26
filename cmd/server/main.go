@@ -5,16 +5,25 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/commondatageek/mule/cmd/server/pipemap"
 )
 
-const Port = "8080"
+const DefaultPort = "8080"
 
 func main() {
+	var mule_port string
+
+	if from_env, exists := os.LookupEnv("MULE_PORT"); exists {
+		mule_port = from_env
+	} else {
+		mule_port = DefaultPort
+	}
+
 	http.HandleFunc("/", NewHandler())
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", Port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", mule_port), nil))
 }
 
 func NewHandler() func(http.ResponseWriter, *http.Request) {
@@ -22,7 +31,7 @@ func NewHandler() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		method := r.Method
 		key := strings.ToLower(r.URL.Path)
-		log.Printf("%s: %s", method, key)
+		log.Printf("Received request: %s %s\n", method, key)
 
 		switch method {
 
