@@ -22,3 +22,10 @@ RUN echo 'alias bat=batcat' >> ~/.bashrc
 RUN apt-get install -y silversearcher-ag
 RUN apt-get install -y net-tools
 RUN apt-get install -y file
+RUN apt-get install -y unzip
+
+# terraform
+RUN wget https://releases.hashicorp.com/terraform/1.1.4/terraform_1.1.4_linux_amd64.zip
+RUN unzip terraform_1.1.4_linux_amd64.zip
+RUN mv terraform /usr/local/bin/
+RUN terraform --version 
