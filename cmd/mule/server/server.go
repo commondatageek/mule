@@ -1,29 +1,18 @@
-package main
+package server
 
 import (
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/commondatageek/mule/cmd/server/pipemap"
+	"github.com/commondatageek/mule/cmd/mule/server/pipemap"
 )
 
-const DefaultPort = "8080"
-
-func main() {
-	var mule_port string
-
-	if from_env, exists := os.LookupEnv("MULE_PORT"); exists {
-		mule_port = from_env
-	} else {
-		mule_port = DefaultPort
-	}
-
+func Serve(port int) {
 	http.HandleFunc("/", NewHandler())
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", mule_port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
 
 func NewHandler() func(http.ResponseWriter, *http.Request) {
