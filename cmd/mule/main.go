@@ -15,16 +15,24 @@ const DefaultHost = "localhost"
 const DefaultPort = 8080
 
 func main() {
+	// "mule serve"
 	serveCmd := flag.NewFlagSet("serve", flag.ExitOnError)
 	servePort := serveCmd.Int("port", LookupEnvOrInt("MULE_PORT", DefaultPort), "the port on which to listen")
 
+	// "mule send"
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	sendHost := sendCmd.String("host", LookupEnvOrString("MULE_HOST", DefaultHost), "the IP or DNS of a host with a running mule server")
 	sendPort := sendCmd.Int("port", LookupEnvOrInt("MULE_PORT", DefaultPort), "the port to send data to")
 	sendKey := sendCmd.String("key", LookupEnvOrString("MULE_KEY", client.GenerateRandomKey(DefaultKeySize)), "the key to designate the send")
 
+	// "mule recv"
+	recvCmd := flag.NewFlagSet("receive", flag.ExitOnError)
+	recvHost := recvCmd.String("host", LookupEnvOrString("MULE_HOST", DefaultHost), "the IP or DNS of a host with a running mule server")
+	recvPort := recvCmd.Int("port", LookupEnvOrInt("MULE_PORT", DefaultPort), "the port to receive data from")
+	recvKey := recvCmd.String("key", LookupEnvOrString("MULE_KEY", client.GenerateRandomKey(DefaultKeySize)), "the key to identify the data to receive")
+
 	if len(os.Args) < 2 {
-		log.Fatal("mule expects a subcommand: {serve | send | recv}")
+		log.Fatal("mule expects a subcommand: {serve | send | receive}")
 	}
 
 	cmd := os.Args[1]
@@ -36,8 +44,10 @@ func main() {
 	case "send":
 		sendCmd.Parse(os.Args[2:])
 		client.SendStream(*sendHost, *sendPort, *sendKey, os.Stdin)
+	case "receive":
+		recvCmd.Parse(os.Args[2:])
+		client.ReceiveStream(*recvHost, *recvPort, *recvKey)
 	}
-
 }
 
 func LookupEnvOrString(key string, defaultVal string) string {
