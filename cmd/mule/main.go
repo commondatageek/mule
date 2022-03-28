@@ -29,7 +29,6 @@ func main() {
 	recvCmd := flag.NewFlagSet("receive", flag.ExitOnError)
 	recvHost := recvCmd.String("host", LookupEnvOrString("MULE_HOST", DefaultHost), "the IP or DNS of a host with a running mule server")
 	recvPort := recvCmd.Int("port", LookupEnvOrInt("MULE_PORT", DefaultPort), "the port to receive data from")
-	recvKey := recvCmd.String("key", LookupEnvOrString("MULE_KEY", client.GenerateRandomKey(DefaultKeySize)), "the key to identify the data to receive")
 
 	if len(os.Args) < 2 {
 		log.Fatal("mule expects a subcommand: {serve | send | receive}")
@@ -46,7 +45,14 @@ func main() {
 		client.SendStream(*sendHost, *sendPort, *sendKey, os.Stdin)
 	case "receive":
 		recvCmd.Parse(os.Args[2:])
-		client.ReceiveStream(*recvHost, *recvPort, *recvKey)
+		recvKey := recvCmd.Arg(0)
+		if recvKey != "" {
+			client.ReceiveStream(*recvHost, *recvPort, recvKey)
+		} else {
+			log.Fatal("Must specify key: mule receive {key}")
+		}
+	default:
+		log.Fatal("subcommands are: {serve | send | receive}")
 	}
 }
 
