@@ -38,6 +38,16 @@ func SendStream(host string, port int, key string, src io.Reader) {
 	}
 }
 
+func SendFile(host string, port int, key string, path string) {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("Could not open %s for reading: %s\n", path, err)
+	}
+	defer f.Close()
+
+	SendStream(host, port, key, f)
+}
+
 func ReceiveStream(host string, port int, key string) {
 	resp, err := http.Get(fmt.Sprintf("http://%s:%d/%s", host, port, key))
 	if err != nil {

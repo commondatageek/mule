@@ -42,7 +42,12 @@ func main() {
 		server.Serve(*servePort)
 	case "send":
 		sendCmd.Parse(os.Args[2:])
-		client.SendStream(*sendHost, *sendPort, *sendKey, os.Stdin)
+		filePath := sendCmd.Arg(0)
+		if filePath != "" {
+			client.SendFile(*sendHost, *sendPort, *sendKey, filePath)
+		} else {
+			client.SendStream(*sendHost, *sendPort, *sendKey, os.Stdin)
+		}
 	case "receive":
 		recvCmd.Parse(os.Args[2:])
 		recvKey := recvCmd.Arg(0)
