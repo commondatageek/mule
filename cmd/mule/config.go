@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -23,14 +24,17 @@ type Configuration struct {
 	FilePath *string
 }
 
-func Configure(cmd string) *Configuration {
+func Configure(dotfilePath string, cmd string) *Configuration {
 	cfg := DefaultConfiguration(cmd)
 
-	// ConfigureFromDotfile()
-
-	err := ConfigureFromEnvVars(cmd, cfg)
+	err := ConfigureFromDotfile(dotfilePath, cmd, cfg)
 	if err != nil {
-		log.Fatalf("Error reading configuration from env vars: %s\n", err)
+		log.Fatalf("Error loading configurattion from dotfile: %s\n", err)
+	}
+
+	err = ConfigureFromEnvVars(cmd, cfg)
+	if err != nil {
+		log.Fatalf("Error loading configuration from env vars: %s\n", err)
 	}
 
 	ConfigureFromFlags(cmd, cfg)
@@ -67,6 +71,56 @@ func DefaultConfiguration(cmd string) *Configuration {
 	}
 
 	return &cfg
+}
+
+type FileConfiguration struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+	Key  string `json:"key"`
+}
+
+func ConfigureFromDotfile(path string, cmd string, cfg *Configuration) error {
+	f, err := os.Open(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("could not open config file at %s: %s", path, err)
+	}
+
+	fc := &FileConfiguration{}
+	dec := json.NewDecoder(f)
+	err = dec.Decode(fc)
+	if err != nil {
+		return fmt.Errorf("could not decode JSON: %s", err)
+	}
+
+	switch cmd {
+	case "serve":
+		if fc.Port != 0 {
+			cfg.Port = &fc.Port
+		}
+
+	case "send":
+		if fc.Host != "" {
+			cfg.Host = &fc.Host
+		}
+		if fc.Port != 0 {
+			cfg.Port = &fc.Port
+		}
+		if fc.Key != "" {
+			cfg.Key = &fc.Key
+		}
+
+	case "receive":
+		if fc.Host != "" {
+			cfg.Host = &fc.Host
+		}
+		if fc.Port != 0 {
+			cfg.Port = &fc.Port
+		}
+	}
+	return nil
 }
 
 func ConfigureFromEnvVars(cmd string, cfg *Configuration) error {

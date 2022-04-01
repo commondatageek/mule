@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -15,7 +16,12 @@ func main() {
 
 	cmd := os.Args[1]
 
-	cfg := Configure(cmd)
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatalf("Could not find home directory: %s\n", err)
+	}
+
+	cfg := Configure(fmt.Sprintf("%s/.mule", homeDir), cmd)
 
 	switch cmd {
 	case "serve":
